@@ -1,0 +1,32 @@
+{
+  "name": "fcc-voting-app",
+  "version": "1.0.0",
+  "description": "Voting APP for FreeCodeCamp backend certificate",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clobrano/fcc-voting-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clobrano/fcc-voting-app/issues"
+  },
+  "homepage": "https://github.com/clobrano/fcc-voting-app#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.3",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.15.3",
+    "method-override": "^2.3.9",
+    "mongodb": "^2.2.28",
+    "morgan": "^1.8.2",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "path": "^0.12.7"
+  }
+}
