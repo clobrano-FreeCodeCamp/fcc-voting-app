@@ -27,17 +27,19 @@ function saveUser(database, data, callback) {
 
 
 var User = function () {
-    save = function(username, password, cbk) {
+    this.save = function(username, password, cbk) {
         var user = {
             'username': username,
             'password': password,
         };
         on_connect(saveUser, user, cbk);
     },
-    get = function (username, cbk) {
+    this.get = function (username, cbk) {
         var data = {
             'username': username,
         };
         on_connect(getUser, data, cbk);
     }
 };
+
+module.exports = new User;

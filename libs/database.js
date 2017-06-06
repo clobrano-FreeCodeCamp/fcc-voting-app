@@ -10,7 +10,7 @@ module.exports.auth = function(username, password) {
 var url = 'mongodb://localhost:27017/test';
 
 
-module.exports = function on_connect(action, userdata, cbk) {
+module.exports.on_connect = function on_connect(action, userdata, cbk) {
     mongodb.connect(url, (err, db) => {
         if (err)
             console.err("Could not connect to database");

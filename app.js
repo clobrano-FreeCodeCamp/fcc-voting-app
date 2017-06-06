@@ -7,14 +7,16 @@ var LocalStrategy = require("passport-local").Strategy;
 var logger = require("morgan");
 var passport = require("passport");
 var path = require('path');
-var User = require('./libs/user.js');
+var User = require('./libs/user');
 
 // === Passport
 passport.use(new LocalStrategy (function (username, password, done) {
-    if (db.auth(username, password))
-        return done(null, {});
-    else
-        return done(new Error("database not implemented yet"));
+    User.get(username, function(item) {
+        if (item)
+            return done(null, item);
+        else
+            return done(null, {}, "could not find user " + username);
+    });
 }));
 
 passport.serializeUser(function(user, done) {
