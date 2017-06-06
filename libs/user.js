@@ -2,7 +2,7 @@ var on_connect = require('./database').on_connect;
 
 function getUser(database, data, callback) {
     database.collection('users').findOne(
-        data.username,
+        {'username': data.username},
         (err, item) => {
             database.close();
             if (err) {

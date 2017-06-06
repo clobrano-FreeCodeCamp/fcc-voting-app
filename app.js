@@ -10,14 +10,20 @@ var path = require('path');
 var User = require('./libs/user');
 
 // === Passport
-passport.use(new LocalStrategy (function (username, password, done) {
-    User.get(username, function(item) {
-        if (item)
-            return done(null, item);
-        else
-            return done(null, {}, "could not find user " + username);
-    });
-}));
+passport.use(new LocalStrategy (
+    function (username, password, done) {
+        User.get(username,
+            function(item) {
+                if (item) {
+                    console.log(item);
+                    return done(null, item);
+                } else {
+                    return done(null, false, "could not find user " + username);
+                }
+            }
+        );
+    }
+));
 
 passport.serializeUser(function(user, done) {
   done(null, user);
@@ -33,7 +39,11 @@ app.use(logger('combined'));
 app.use(cookieparser());
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
-app.use(exp_session({secret: 'awsome cat'}));
+app.use(exp_session({
+    secret: 'awsome cat',
+    saveUninitialized: false,
+    resave: false
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -49,10 +59,13 @@ app.get('/', (req, rsp) => {
     rsp.render('login');
 });
 
-app.post('/login', passport.authenticate('local'),
+app.post('/login',
+    passport.authenticate('local'),
     (req, rsp) => {
-    rsp.render('index', {'title': 'Hello Node', 'message': 'I finally got it right!'});
-});
+        console.log(req.user);
+        rsp.render('index', {'title': 'Hello ' + req.user.username, 'message': 'I finally got it right!'});
+    }
+);
 
 
 // === Run
