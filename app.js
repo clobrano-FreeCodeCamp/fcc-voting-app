@@ -10,7 +10,7 @@ var path = require('path');
 var User = require('./libs/user');
 
 // === Passport
-passport.use(new LocalStrategy (
+passport.use('local', new LocalStrategy (
     function (username, password, done) {
         User.get(username,
             function(item) {
@@ -56,16 +56,26 @@ app.set('view engine', 'hbs');
 
 // === Routes
 app.get('/', (req, rsp) => {
-    rsp.render('login');
+    rsp.render('index');
 });
 
-app.post('/login',
-    passport.authenticate('local'),
-    (req, rsp) => {
-        console.log(req.user);
-        rsp.render('index', {'title': 'Hello ' + req.user.username, 'message': 'I finally got it right!'});
-    }
-);
+// Login
+app.get('/signin', (req, rsp) => {
+    rsp.render('user-form', {'action': '/login', 'message': 'Insert your data'});
+});
+app.post('/login', function(req, rsp, next) {
+    passport.authenticate('local',
+        function(err, user, info) {
+            if (err) return rsp.send(500);
+            if (user) return rsp.render('index', {'username': user.username});
+            else return rsp.render('user-form', {'message': 'Please register first', 'action': '/subscribe'})
+        })(req, rsp, next);
+});
+
+// Subscribe
+app.get('/signup', (req, rsp) => {
+    rsp.render('user-form', {'action': '/subscribe', 'message': 'Insert your data'});
+});
 
 
 // === Run
