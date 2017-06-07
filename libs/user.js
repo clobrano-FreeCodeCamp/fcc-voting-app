@@ -1,3 +1,4 @@
+var assert = require('assert');
 var on_connect = require('./database').on_connect;
 
 function getUser(database, data, callback) {
@@ -16,11 +17,12 @@ function getUser(database, data, callback) {
 };
 
 function saveUser(database, data, callback) {
-    databse.collection('users').insertOne(
+    database.collection('users').insertOne(
         data,
-        (err, r) => {
+        (err, result) => {
             assert.equal(err, null);
             database.close();
+            callback();
         }
     );
 };

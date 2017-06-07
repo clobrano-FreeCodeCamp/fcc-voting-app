@@ -61,22 +61,34 @@ app.get('/', (req, rsp) => {
 
 // Login
 app.get('/signin', (req, rsp) => {
-    rsp.render('user-form', {'action': '/login', 'message': 'Insert your data'});
+    rsp.render('user-form', {'action': '/login', 'message': 'Insert your Username and Password'});
 });
 app.post('/login', function(req, rsp, next) {
     passport.authenticate('local',
         function(err, user, info) {
             if (err) return rsp.send(500);
             if (user) return rsp.render('index', {'username': user.username});
-            else return rsp.render('user-form', {'message': 'Please register first', 'action': '/subscribe'})
+            else return rsp.render('user-form', {'message': 'Please register first', 'action': '/subscribe'});
         })(req, rsp, next);
 });
 
 // Subscribe
 app.get('/signup', (req, rsp) => {
-    rsp.render('user-form', {'action': '/subscribe', 'message': 'Insert your data'});
+    rsp.render('user-form', {'action': '/subscribe', 'message': 'Register your Username and Password'});
 });
-
+app.post('/subscribe', function(req, rsp, next) {
+    passport.authenticate('local',
+        function(err, user, info) {
+            if (err) return rsp.send(500);
+            if (user) return rsp.render('user-form', {'action': '/login', 'message': 'This user already exists'});
+            else {
+                console.log(req);
+                User.save(req.body.username,
+                          req.body.password,
+                          function() {rsp.send('Registered ' + req.body.username + ', ' + req.body.password);});
+            }
+        })(req, rsp, next);
+});
 
 // === Run
 port = process.env.PORT || 3000
