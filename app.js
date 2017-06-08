@@ -46,6 +46,7 @@ app.use(exp_session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use("/static", express.static(path.join(__dirname, "/static")));
 
 // IMPORTANT: engine NAME and EXTNAME must be the same. Also
 // the other file ext must be the same (i.e. index.hbs)
