@@ -8,11 +8,13 @@ var logger = require("morgan");
 var passport = require("passport");
 var path = require('path');
 var User = require('./libs/user');
+var Polls = require('./libs/polls');
 
 // === Passport
 passport.use('local', new LocalStrategy (
 	function (username, password, done) {
-		User.get(username,
+        var user = {'username': username, 'password': password};
+		User.get(user,
 			function(item) {
 				if (item) {
 					console.log(item);
@@ -70,9 +72,29 @@ app.post('/login', function(req, rsp, next) {
 			if (err)
         return rsp.send(500);
 			if (user) {
-        return rsp.render('index', {'username': user.username, 'success_message': 'Welcome back ' + user.username + '!'});
-			}
-			else
+          Polls.get({'user_id': user._id},
+            function(user_polls) {
+              if (err) {
+                rsp.render('index',
+                  {
+                    'username': user.username,
+                    'error_message': 'Sorry, something wrong happend :(',
+                  });
+              } else {
+                rsp.render('index',
+                  {
+                    'username': user.username,
+                    'success_message': 'Welcome back ' + user.username + '!',
+                    'polls': user_polls
+                  });
+              }
+            });
+        return rsp.render('index',
+          {
+            'username': user.username,
+            'success_message': 'Welcome back ' + user.username + '!'
+          });
+			} else {
         return rsp.render(
           'user-form',
           {
@@ -80,7 +102,7 @@ app.post('/login', function(req, rsp, next) {
             'message': 'Please login',
             'warn_message': 'Username and/or password are wrong. Retry or Sign Up'
           });
-		})(req, rsp, next);
+      }})(req, rsp, next);
 });
 
 // --- Subscribe
@@ -97,7 +119,13 @@ app.post('/subscribe', function(req, rsp, next) {
 			else {
 				User.save(req.body.username,
 					req.body.password,
-					function(user) {rsp.render('index', {'username': user.username, 'success_message': 'Welcome ' + user.username + '!'});});
+					function(user) {
+            return rsp.render('index',
+              {
+                'username': user.username,
+                'success_message': 'Welcome ' + user.username + '!'
+              });
+          });
 			}
 		})(req, rsp, next);
 });
