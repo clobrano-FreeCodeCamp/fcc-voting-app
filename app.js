@@ -11,26 +11,26 @@ var User = require('./libs/user');
 
 // === Passport
 passport.use('local', new LocalStrategy (
-    function (username, password, done) {
-        User.get(username,
-            function(item) {
-                if (item) {
-                    console.log(item);
-                    return done(null, item);
-                } else {
-                    return done(null, false, "could not find user " + username);
-                }
-            }
-        );
-    }
+	function (username, password, done) {
+		User.get(username,
+			function(item) {
+				if (item) {
+					console.log(item);
+					return done(null, item);
+				} else {
+					return done(null, false, "could not find user " + username);
+				}
+			}
+		);
+	}
 ));
 
 passport.serializeUser(function(user, done) {
-  done(null, user);
+	done(null, user);
 });
 
 passport.deserializeUser(function(user, done) {
-  done(null, user);
+	done(null, user);
 });
 
 // === Express
@@ -40,9 +40,9 @@ app.use(cookieparser());
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
 app.use(exp_session({
-    secret: 'awsome cat',
-    saveUninitialized: false,
-    resave: false
+	secret: 'awsome cat',
+	saveUninitialized: false,
+	resave: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -57,38 +57,49 @@ app.set('view engine', 'hbs');
 
 // === Routes
 app.get('/', (req, rsp) => {
-    rsp.render('index');
+	rsp.render('index');
 });
 
-// Login
+// --- Login
 app.get('/signin', (req, rsp) => {
-    rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
+	rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
 });
 app.post('/login', function(req, rsp, next) {
-    passport.authenticate('local',
-        function(err, user, info) {
-            if (err) return rsp.send(500);
-            if (user) return rsp.render('index', {'username': user.username});
-            else return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'err_message': 'Please register first', });
-        })(req, rsp, next);
+	passport.authenticate('local',
+		function(err, user, info) {
+			if (err)
+        return rsp.send(500);
+			if (user) {
+        return rsp.render('index', {'username': user.username, 'success_message': 'Welcome back ' + user.username + '!'});
+			}
+			else
+        return rsp.render(
+          'user-form',
+          {
+            'action': '/login',
+            'message': 'Please login',
+            'warn_message': 'Username and/or password are wrong. Retry or Sign Up'
+          });
+		})(req, rsp, next);
 });
 
-// Subscribe
+// --- Subscribe
 app.get('/signup', (req, rsp) => {
-    rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
+	rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
 });
 app.post('/subscribe', function(req, rsp, next) {
-    passport.authenticate('local',
-        function(err, user, info) {
-            if (err) return rsp.send(500);
-            if (user) return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'err_message': 'This user already exists'});
-            else {
-                console.log(req);
-                User.save(req.body.username,
-                          req.body.password,
-                          function() {rsp.send('Registered ' + req.body.username + ', ' + req.body.password);});
-            }
-        })(req, rsp, next);
+	passport.authenticate('local',
+		function(err, user, info) {
+			if (err)
+        return rsp.send(500);
+			if (user)
+        return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'warn_message': 'This user already exists'});
+			else {
+				User.save(req.body.username,
+					req.body.password,
+					function(user) {rsp.render('index', {'username': user.username, 'success_message': 'Welcome ' + user.username + '!'});});
+			}
+		})(req, rsp, next);
 });
 
 // === Run

@@ -3,7 +3,8 @@ var on_connect = require('./database').on_connect;
 
 function getUser(database, data, callback) {
     database.collection('users').findOne(
-        {'username': data.username},
+        // TODO encrypt password
+        {'username': data.username, 'password': data.password},
         (err, item) => {
             database.close();
             if (err) {
@@ -21,8 +22,7 @@ function saveUser(database, data, callback) {
         data,
         (err, result) => {
             assert.equal(err, null);
-            database.close();
-            callback();
+            getUser(database, data, callback);
         }
     );
 };

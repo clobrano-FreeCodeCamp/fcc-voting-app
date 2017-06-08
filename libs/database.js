@@ -1,12 +1,6 @@
 var mongodb = require('mongodb');
 var assert = require('assert');
 
-module.exports.auth = function(username, password) {
-    console.log('username: ' + username);
-    console.log('password: ' + password);
-    return true;
-};
-
 var url = 'mongodb://localhost:27017/test';
 
 
@@ -15,7 +9,6 @@ module.exports.on_connect = function on_connect(action, userdata, cbk) {
         if (err)
             console.err("Could not connect to database");
         assert.equal(null, err);
-        console.log('Connected');
         if (action)
             action(db, userdata, cbk);
     });

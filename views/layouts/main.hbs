@@ -45,19 +45,26 @@
 
     <div class="container">
 
-      <div class="starter-template">
-        <h1>Voting App</h1>
-      </div>
-
-    </div><!-- /.container -->
-
     {{#if err_message }}
-      <div class="alert alert-warning">
+      <div class="alert alert-danger">
         {{err_message}}
       </div>
     {{/if}}
+    {{#if warn_message }}
+      <div class="alert alert-warning">
+        {{warn_message}}
+      </div>
+    {{/if}}
+    {{#if success_message }}
+      <div class="alert alert-success">
+    {{success_message}}
+      </div>
+    {{/if}}
     {{{ body }}}
-    <!-- Bootstrap core JavaScript
+
+    </div><!-- /.container -->
+
+        <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
