@@ -51,6 +51,11 @@
 
     </div><!-- /.container -->
 
+    {{#if err_message }}
+      <div class="alert alert-warning">
+        {{err_message}}
+      </div>
+    {{/if}}
     {{{ body }}}
     <!-- Bootstrap core JavaScript
     ================================================== -->

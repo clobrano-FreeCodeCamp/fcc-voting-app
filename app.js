@@ -69,7 +69,7 @@ app.post('/login', function(req, rsp, next) {
         function(err, user, info) {
             if (err) return rsp.send(500);
             if (user) return rsp.render('index', {'username': user.username});
-            else return rsp.render('user-form', {'message': 'Please register first', 'action': '/subscribe'});
+            else return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'err_message': 'Please register first', });
         })(req, rsp, next);
 });
 
@@ -81,7 +81,7 @@ app.post('/subscribe', function(req, rsp, next) {
     passport.authenticate('local',
         function(err, user, info) {
             if (err) return rsp.send(500);
-            if (user) return rsp.render('user-form', {'action': '/login', 'message': 'This user already exists'});
+            if (user) return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'err_message': 'This user already exists'});
             else {
                 console.log(req);
                 User.save(req.body.username,
