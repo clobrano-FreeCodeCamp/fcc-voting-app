@@ -62,7 +62,7 @@ app.get('/', (req, rsp) => {
 
 // Login
 app.get('/signin', (req, rsp) => {
-    rsp.render('user-form', {'action': '/login', 'message': 'Insert your Username and Password'});
+    rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
 });
 app.post('/login', function(req, rsp, next) {
     passport.authenticate('local',
@@ -75,7 +75,7 @@ app.post('/login', function(req, rsp, next) {
 
 // Subscribe
 app.get('/signup', (req, rsp) => {
-    rsp.render('user-form', {'action': '/subscribe', 'message': 'Register your Username and Password'});
+    rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
 });
 app.post('/subscribe', function(req, rsp, next) {
     passport.authenticate('local',
