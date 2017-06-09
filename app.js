@@ -65,14 +65,11 @@ app.get('/', (req, rsp) => {
   var data = {};
   var filter = {};
 
-  if (req.user) {
+  if (req.user)
     data.username = req.user.username;
-    filter = {'owner': req.user._id};
-  }
 
-  Polls.get(filter,
+  Polls.get({},
     function(err, user_polls) {
-      console.log(user_polls);
       if (err) {
         rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
       } else {
@@ -86,7 +83,6 @@ app.get('/', (req, rsp) => {
   });
 });
 
-// --- Login
 app.get('/login', (req, rsp) => {
   rsp.render('user-form', {'action': '/user/login',
                            'title': 'Please login',
@@ -96,7 +92,7 @@ app.get('/login', (req, rsp) => {
 });
 
 app.post('/user/login',
-  passport.authenticate('local', { successRedirect: '/',
+  passport.authenticate('local', { successRedirect: '/user/polls',
                                    failureRedirect: '/login',
                                    failureFlash: true}));
 
@@ -104,6 +100,35 @@ app.get ('/user/logout', function(req, rsp) {
   req.logout();
   rsp.redirect('/');
 });
+
+app.get('/user/polls', function(req, rsp) {
+  var data = {};
+  var filter = {};
+
+  if (!req.user) {
+    req.flash('error', 'No user defined');
+    req.redirect('/');
+  } else {
+    data.username = req.user.username;
+    filter = {'owner': req.user._id};
+
+    Polls.get(filter,
+      function(err, user_polls) {
+        console.log(user_polls);
+        if (err) {
+          rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
+        } else {
+          data.polls = user_polls;
+
+          if (user_polls.length == 0)
+            data.info_message = 'No polls yet';
+
+          rsp.render('index', data);
+        }
+    });
+  }
+});
+
 
 // --- Subscribe
 app.get('/signup', (req, rsp) => {
