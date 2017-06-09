@@ -12,27 +12,27 @@ var Polls = require('./libs/polls');
 
 // === Passport
 passport.use('local', new LocalStrategy (
-	function (username, password, done) {
+  function (username, password, done) {
         var user = {'username': username, 'password': password};
-		User.get(user,
-			function(item) {
-				if (item) {
-					console.log(item);
-					return done(null, item);
-				} else {
-					return done(null, false, "could not find user " + username);
-				}
-			}
-		);
-	}
+    User.get(user,
+      function(item) {
+        if (item) {
+          console.log(item);
+          return done(null, item);
+        } else {
+          return done(null, false, "could not find user " + username);
+        }
+      }
+    );
+  }
 ));
 
 passport.serializeUser(function(user, done) {
-	done(null, user);
+  done(null, user);
 });
 
 passport.deserializeUser(function(user, done) {
-	done(null, user);
+  done(null, user);
 });
 
 // === Express
@@ -42,9 +42,9 @@ app.use(cookieparser());
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
 app.use(exp_session({
-	secret: 'awsome cat',
-	saveUninitialized: false,
-	resave: false
+  secret: 'awsome cat',
+  saveUninitialized: false,
+  resave: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -59,42 +59,38 @@ app.set('view engine', 'hbs');
 
 // === Routes
 app.get('/', (req, rsp) => {
-	rsp.render('index');
+  rsp.render('index');
 });
 
 // --- Login
 app.get('/signin', (req, rsp) => {
-	rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
+  rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
 });
 app.post('/login', function(req, rsp, next) {
-	passport.authenticate('local',
-		function(err, user, info) {
-			if (err)
+  passport.authenticate('local',
+    function(err, user, info) {
+      if (err)
         return rsp.send(500);
-			if (user) {
+
+      if (user) {
           Polls.get({'user_id': user._id},
-            function(user_polls) {
-              if (err) {
-                rsp.render('index',
-                  {
-                    'username': user.username,
-                    'error_message': 'Sorry, something wrong happend :(',
-                  });
-              } else {
-                rsp.render('index',
-                  {
-                    'username': user.username,
-                    'success_message': 'Welcome back ' + user.username + '!',
-                    'polls': user_polls
-                  });
-              }
-            });
-        return rsp.render('index',
-          {
-            'username': user.username,
-            'success_message': 'Welcome back ' + user.username + '!'
-          });
-			} else {
+                    function(err, user_polls) {
+                      if (err) {
+                        return rsp.render('index',
+                                          {
+                                            'username': user.username,
+                                            'error_message': 'Sorry, something wrong happend :(',
+                                          });
+                      }
+
+                      return rsp.render('index',
+                                        {
+                                          'username': user.username,
+                                          'success_message': 'Welcome back ' + user.username + '!',
+                                          'polls': user_polls
+                                        });
+                   });
+      } else {
         return rsp.render(
           'user-form',
           {
@@ -107,30 +103,40 @@ app.post('/login', function(req, rsp, next) {
 
 // --- Subscribe
 app.get('/signup', (req, rsp) => {
-	rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
+  rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
 });
+
 app.post('/subscribe', function(req, rsp, next) {
-	passport.authenticate('local',
-		function(err, user, info) {
-			if (err)
+  passport.authenticate('local',
+    function(err, user, info) {
+      if (err) {
         return rsp.send(500);
-			if (user)
-        return rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register', 'warn_message': 'This user already exists'});
-			else {
-				User.save(req.body.username,
-					req.body.password,
-					function(user) {
-            return rsp.render('index',
-              {
-                'username': user.username,
-                'success_message': 'Welcome ' + user.username + '!'
-              });
-          });
-			}
-		})(req, rsp, next);
+      }
+
+      if (user) {
+        console.log('Got user ' + user);
+        return rsp.render('user-form',
+          {'action': '/subscribe',
+            'message': 'Please register',
+            'warn_message': 'This user already exists'});
+      } else {
+        console.log('saving new user');
+        User.save(req.body.username,
+                  req.body.password,
+                  function(err, user_polls) {
+                    console.log('in save callback');
+                    if (err) rsp.send(501);
+                    return rsp.render('index',
+                      {
+                        'username': user.username,
+                        'success_message': 'Welcome ' + user.username + '!'
+                      });
+                  });
+      }
+    })(req, rsp, next);
 });
 
 // === Run
-port = process.env.PORT || 3000
+port = process.env.PORT || 3001
 app.listen(port);
 console.log('Server listening on port ' + port);
