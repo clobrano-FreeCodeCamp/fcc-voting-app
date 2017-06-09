@@ -58,25 +58,28 @@ app.set('view engine', 'hbs');
 
 // === Routes
 app.get('/', (req, rsp) => {
-  console.log(req.user);
-  if (req.user) {
-    Polls.get({'owner': req.user._id},
-      function(err, user_polls) {
-        console.log(user_polls);
-        if (err) {
-          rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
-        } else {
-          var data = { 'username': req.user.username,
-                       'polls': user_polls };
-          if (user_polls.length == 0)
-            data.info_message = req.user.username + ', you don\'t have any polls yet';
+  var data = {};
+  var filter = {};
 
-          rsp.render('index', data);
-        }
-      })
-  } else {
-    rsp.render('index');
+  if (req.user) {
+    data.username = req.user.username;
+    filter = {'owner': req.user._id};
   }
+
+  Polls.get(filter,
+    function(err, user_polls) {
+      console.log(user_polls);
+      if (err) {
+        rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
+      } else {
+        data.polls = user_polls;
+
+        if (user_polls.length == 0)
+          data.info_message = req.user.username + ', you don\'t have any polls yet';
+
+        rsp.render('index', data);
+      }
+  });
 });
 
 // --- Login
