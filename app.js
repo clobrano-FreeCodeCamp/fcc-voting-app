@@ -100,6 +100,11 @@ app.post('/user/login',
                                    failureRedirect: '/login',
                                    failureFlash: true}));
 
+app.get ('/user/logout', function(req, rsp) {
+  req.logout();
+  rsp.redirect('/');
+});
+
 // --- Subscribe
 app.get('/signup', (req, rsp) => {
   rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
