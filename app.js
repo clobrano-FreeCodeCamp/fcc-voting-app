@@ -149,20 +149,23 @@ app.post('/polls/new',
                                  'action': '/polls/new',
                                  'err_message': 'No Choices provided'
                                });
+
            var choice_list = choices.split("\r\n");
            var choice_map = {};
+
            for (i = 0; i < choice_list.length; i++) {
               choice_map[choice_list[i]] = 0.0;
            }
 
            data = {'title': title,
-                   'owner': req.session.user_id,
-                   'choices': choice_map};
-           console.log(data);
+                   'owner': req.user._id,
+                   'choices': choice_map,
+                   'votes': 0};
+
            Polls.save(data,
                       function(err, result) {
                         if (err)
-                          return rsp.render('index', {'err_message': 'Something went wrong'});
+                          return rsp.render('index', {'err_message': err});
                         rsp.redirect('/');
                       });
          });

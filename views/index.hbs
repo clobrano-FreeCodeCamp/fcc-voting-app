@@ -1,6 +1,6 @@
 {{!< layout/main}}
 
-{{#if session.user }}
+{{#if username }}
 {{else}}
 <div class="jumbotron">
   <p>Voting APP for Free Code Camp</p>
@@ -8,15 +8,21 @@
 </div>
 {{/if}}
 
-<table class="table table-hover">
+<table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th>List of Polls</th>
+      <th>#</th>
+      <th>Title</th>
+      <th>Votes</th>
     </tr>
   </thead>
   <tbody>
     {{#each polls}}
-      <tr><td>{{@index}} - {{this.title}}</td></tr>
+      <tr>
+        <th>{{@index}}</th>
+        <td>{{this.title}}</td>
+        <td>{{this.votes}}</td>
+      </tr>
     {{/each}}
   </tbody>
 </table>

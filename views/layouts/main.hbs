@@ -18,7 +18,6 @@
 
   <body>
 
-  <div class="container">
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -35,13 +34,16 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <a class="btn btn-md btn-default navbar-btn" role="button" href="/signin">Sign In</a>
-            <a class="btn btn-md btn-default navbar-btn" role="button" href="/signup">Sign Up</a>
+            {{#if username }}
+            <p class="navbar-text">Logged in as <strong>{{username}}</strong>, <a class="navbar-link">logout</a><p>
+            {{else}}
+              <a class="btn btn-md btn-default navbar-btn" role="button" href="/signin">Sign In</a>
+              <a class="btn btn-md btn-default navbar-btn" role="button" href="/signup">Sign Up</a>
+            {{/if}}
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
-  </div><!-- closing container -->
 
     <div class="container">
 
