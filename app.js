@@ -1,12 +1,15 @@
+var path = require('path');
+var logger = require("morgan");
+
 var express = require("express");
 var exphbs = require("express-handlebars");
 var exp_session = require('express-session');
 var bodyparser = require("body-parser");
 var cookieparser = require("cookie-parser");
-var LocalStrategy = require("passport-local").Strategy;
-var logger = require("morgan");
+var flash = require('connect-flash');
+
 var passport = require("passport");
-var path = require('path');
+var LocalStrategy = require("passport-local").Strategy;
 var User = require('./libs/user');
 var Polls = require('./libs/polls');
 
@@ -19,7 +22,7 @@ passport.use('local', new LocalStrategy (
         if (item) {
           return done(null, item);
         } else {
-          return done(null, false, "could not find user " + username);
+          return done(null, false, { message: "Username and/or password are wrong"});
         }
       }
     );
@@ -46,6 +49,7 @@ app.use(exp_session({
   resave: false
 }));
 app.use(passport.initialize());
+app.use(flash());
 app.use(passport.session());
 app.use("/static", express.static(path.join(__dirname, "/static")));
 
@@ -75,7 +79,7 @@ app.get('/', (req, rsp) => {
         data.polls = user_polls;
 
         if (user_polls.length == 0)
-          data.info_message = req.user.username + ', you don\'t have any polls yet';
+          data.info_message = 'No polls yet';
 
         rsp.render('index', data);
       }
@@ -83,16 +87,22 @@ app.get('/', (req, rsp) => {
 });
 
 // --- Login
-app.get('/signin', (req, rsp) => {
-  rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
+app.get('/login', (req, rsp) => {
+  rsp.render('user-form', {'action': '/user/login',
+                           'title': 'Please login',
+                           'error': req.flash('error'),
+                           'warning': req.flash('warning'),
+                           'info': req.flash('info')});
 });
-app.post('/login',
+
+app.post('/user/login',
   passport.authenticate('local', { successRedirect: '/',
-                                   failureRedirect: '/signin'}));
+                                   failureRedirect: '/login',
+                                   failureFlash: true}));
 
 // --- Subscribe
 app.get('/signup', (req, rsp) => {
-  rsp.render('user-form', {'action': '/subscribe', 'message': 'Please register'});
+  rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
 });
 
 app.post('/subscribe', function(req, rsp, next) {
@@ -105,8 +115,8 @@ app.post('/subscribe', function(req, rsp, next) {
       if (user) {
         return rsp.render('user-form',
           {'action': '/subscribe',
-            'message': 'Please register',
-            'warn_message': 'This user already exists'});
+            'title': 'Please register',
+            'warning': 'This user already exists'});
       } else {
         User.save(req.body.username,
                   req.body.password,

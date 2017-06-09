@@ -37,7 +37,7 @@
             {{#if username }}
             <p class="navbar-text">Logged in as <strong>{{username}}</strong>, <a class="navbar-link">logout</a><p>
             {{else}}
-              <a class="btn btn-md btn-default navbar-btn" role="button" href="/signin">Sign In</a>
+              <a class="btn btn-md btn-default navbar-btn" role="button" href="/login">Sign In</a>
               <a class="btn btn-md btn-default navbar-btn" role="button" href="/signup">Sign Up</a>
             {{/if}}
           </ul>
@@ -46,20 +46,20 @@
     </nav>
 
     <div class="container">
-
-    {{#if err_message }}
+    {{#if error }}
       <div class="alert alert-danger">
-        {{err_message}}
+        {{error}}
       </div>
     {{/if}}
-    {{#if warn_message }}
+
+    {{#if warning }}
       <div class="alert alert-warning">
-        {{warn_message}}
+        {{warning}}
       </div>
     {{/if}}
-    {{#if success_message }}
+    {{#if info }}
       <div class="alert alert-success">
-    {{success_message}}
+    {{info}}
       </div>
     {{/if}}
     {{{ body }}}
