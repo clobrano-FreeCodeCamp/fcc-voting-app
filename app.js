@@ -17,7 +17,6 @@ passport.use('local', new LocalStrategy (
     User.get(user,
       function(item) {
         if (item) {
-          console.log(item);
           return done(null, item);
         } else {
           return done(null, false, "could not find user " + username);
@@ -59,47 +58,34 @@ app.set('view engine', 'hbs');
 
 // === Routes
 app.get('/', (req, rsp) => {
-  rsp.render('index');
+  console.log(req.user);
+  if (req.user) {
+    Polls.get({'owner': req.user._id},
+      function(err, user_polls) {
+        console.log(user_polls);
+        if (err) {
+          rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
+        } else {
+          var data = { 'username': req.user.username,
+                       'polls': user_polls };
+          if (user_polls.length == 0)
+            data.info_message = req.user.username + ', you don\'t have any polls yet';
+
+          rsp.render('index', data);
+        }
+      })
+  } else {
+    rsp.render('index');
+  }
 });
 
 // --- Login
 app.get('/signin', (req, rsp) => {
   rsp.render('user-form', {'action': '/login', 'message': 'Please login'});
 });
-app.post('/login', function(req, rsp, next) {
-  passport.authenticate('local',
-    function(err, user, info) {
-      if (err)
-        return rsp.send(500);
-
-      if (user) {
-          Polls.get({'user_id': user._id},
-                    function(err, user_polls) {
-                      if (err) {
-                        return rsp.render('index',
-                                          {
-                                            'username': user.username,
-                                            'error_message': 'Sorry, something wrong happend :(',
-                                          });
-                      }
-
-                      return rsp.render('index',
-                                        {
-                                          'username': user.username,
-                                          'success_message': 'Welcome back ' + user.username + '!',
-                                          'polls': user_polls
-                                        });
-                   });
-      } else {
-        return rsp.render(
-          'user-form',
-          {
-            'action': '/login',
-            'message': 'Please login',
-            'warn_message': 'Username and/or password are wrong. Retry or Sign Up'
-          });
-      }})(req, rsp, next);
-});
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/',
+                                   failureRedirect: '/signin'}));
 
 // --- Subscribe
 app.get('/signup', (req, rsp) => {
@@ -114,17 +100,14 @@ app.post('/subscribe', function(req, rsp, next) {
       }
 
       if (user) {
-        console.log('Got user ' + user);
         return rsp.render('user-form',
           {'action': '/subscribe',
             'message': 'Please register',
             'warn_message': 'This user already exists'});
       } else {
-        console.log('saving new user');
         User.save(req.body.username,
                   req.body.password,
                   function(err, user_polls) {
-                    console.log('in save callback');
                     if (err) rsp.send(501);
                     return rsp.render('index',
                       {
@@ -135,6 +118,54 @@ app.post('/subscribe', function(req, rsp, next) {
       }
     })(req, rsp, next);
 });
+
+
+app.get('/polls/new',
+        //passport.authenticate('local'),
+        function(req, rsp) {
+          rsp.render('new-poll', {'action': '/polls/new'});
+});
+
+app.post('/polls/new',
+         // TODO get user from session
+         //passport.authenticate('local'),
+         function(req, rsp) {
+           if (req.session.user_id === null) {
+              return rsp.render('index', {'err_message': 'Something went wrong'});
+           }
+
+           var title = req.body.title;
+           var choices = req.body.choices;
+           if (!title || title.length == 0)
+             return rsp.render('new-poll',
+                               {
+                                 'action': '/polls/new',
+                                 'err_message': 'Title is missing'
+                               });
+
+           if (!choices || choices.length == 0)
+             return rsp.render('new-poll',
+                               {
+                                 'action': '/polls/new',
+                                 'err_message': 'No Choices provided'
+                               });
+           var choice_list = choices.split("\r\n");
+           var choice_map = {};
+           for (i = 0; i < choice_list.length; i++) {
+              choice_map[choice_list[i]] = 0.0;
+           }
+
+           data = {'title': title,
+                   'owner': req.session.user_id,
+                   'choices': choice_map};
+           console.log(data);
+           Polls.save(data,
+                      function(err, result) {
+                        if (err)
+                          return rsp.render('index', {'err_message': 'Something went wrong'});
+                        rsp.redirect('/');
+                      });
+         });
 
 // === Run
 port = process.env.PORT || 3001

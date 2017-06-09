@@ -1,0 +1,14 @@
+{{!< layout/main}}
+<div class="wrapper">
+  <form action={{action}} method="POST">
+    <div class="form-group">
+      <label for="title">Title:</label>
+      <input type="text" class="form-control" name="title" placeholder="What should I do next?">
+    </div>
+    <div class="form-group">
+      <label for="comment">Choices (one line for each):</label>
+      <textarea class="form-control" rows="5" name="choices" placeholder="Conquer the world"></textarea>
+    </div>
+    <button type="submit" class="btn btn-default">Create</button>
+  </form>
+</div>

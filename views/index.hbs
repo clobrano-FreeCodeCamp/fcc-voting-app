@@ -1,6 +1,26 @@
 {{!< layout/main}}
 
+{{#if session.user }}
+{{else}}
 <div class="jumbotron">
   <p>Voting APP for Free Code Camp</p>
   <p><a class="btn btn-primary btn-lg" href="https://www.freecodecamp.com/challenges/build-a-voting-app" role="button">Learn more</a></p>
 </div>
+{{/if}}
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>List of Polls</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each polls}}
+      <tr><td>{{@index}} - {{this.title}}</td></tr>
+    {{/each}}
+  </tbody>
+</table>
+
+{{#if username}}
+  <a class="btn btn-md btn-default" role="button" href="/polls/new">+ New Poll</a>
+{{/if}}
