@@ -28,14 +28,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">FCC</a>
+          <a class="navbar-brand" href="/">Home</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             {{#if username }}
-            <p class="navbar-text">Logged in as <strong>{{username}}</strong>, <a class="navbar-link" href="/user/logout">logout</a><p>
+            <p class="navbar-text">Logged in as <a class="navbar-link" href="/user/polls"><strong>{{username}}</strong></a>, <a class="navbar-link" href="/user/logout">logout</a><p>
             {{else}}
               <a class="btn btn-md btn-default navbar-btn" role="button" href="/login">Sign In</a>
               <a class="btn btn-md btn-default navbar-btn" role="button" href="/signup">Sign Up</a>

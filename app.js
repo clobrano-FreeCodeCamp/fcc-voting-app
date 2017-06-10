@@ -10,20 +10,19 @@ var flash = require('connect-flash');
 
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
-var User = require('./libs/user');
+
+var Users = require('./libs/user');
 var Polls = require('./libs/polls');
 
 // === Passport
 passport.use('local', new LocalStrategy (
   function (username, password, done) {
-        var user = {'username': username, 'password': password};
-    User.get(user,
-      function(item) {
-        if (item) {
-          return done(null, item);
-        } else {
-          return done(null, false, { message: "Username and/or password are wrong"});
-        }
+    var user = {'username': username, 'password': password};
+    Users.get(user,
+      function(err, item) {
+        if (err) { return done(err); }
+        if (!item) { return done(null, false, { message: "Username and/or password are wrong"}); }
+        return done(null, item);
       }
     );
   }
@@ -61,23 +60,21 @@ app.set('view engine', 'hbs');
 
 
 // === Routes
+
+// Clear all flash requests
 app.get('/', (req, rsp) => {
   var data = {};
   var filter = {};
 
-  if (req.user)
+  if (req.user && req.user.username)
     data.username = req.user.username;
 
   Polls.get({},
     function(err, user_polls) {
       if (err) {
-        rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
+        rsp.render('index', {'error': 'Something went wrong'});
       } else {
         data.polls = user_polls;
-
-        if (user_polls.length == 0)
-          data.info_message = 'No polls yet';
-
         rsp.render('index', data);
       }
   });
@@ -98,6 +95,7 @@ app.post('/user/login',
 
 app.get ('/user/logout', function(req, rsp) {
   req.logout();
+  req.session.user = {};
   rsp.redirect('/');
 });
 
@@ -106,17 +104,17 @@ app.get('/user/polls', function(req, rsp) {
   var filter = {};
 
   if (!req.user) {
-    req.flash('error', 'No user defined');
-    req.redirect('/');
+    rsp.redirect('/', {'error': 'Could not find user data'});
   } else {
-    data.username = req.user.username;
-    filter = {'owner': req.user._id};
+    var user = req.user;
+    data.username = user.username;
+    filter = {'owner': user._id};
 
     Polls.get(filter,
       function(err, user_polls) {
         console.log(user_polls);
         if (err) {
-          rsp.render('index', {'err_message': req.user.username + ', something went wrong'});
+          rsp.render('index', {'err_message': user.username + ', something went wrong'});
         } else {
           data.polls = user_polls;
 
@@ -136,45 +134,54 @@ app.get('/signup', (req, rsp) => {
 });
 
 app.post('/subscribe', function(req, rsp, next) {
-  passport.authenticate('local',
-    function(err, user, info) {
+    var newuser = {'username': req.body.username,
+                   'password': req.body.password};
+
+    Users.get(newuser, (err, user) => {
       if (err) {
-        return rsp.send(500);
+        req.flash('error', 'Something wrong happend');
+        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
       }
 
       if (user) {
-        return rsp.render('user-form',
-          {'action': '/subscribe',
-            'title': 'Please register',
-            'warning': 'This user already exists'});
-      } else {
-        User.save(req.body.username,
-                  req.body.password,
-                  function(err, user_polls) {
-                    if (err) rsp.send(501);
-                    return rsp.render('index',
-                      {
-                        'username': user.username,
-                        'success_message': 'Welcome ' + user.username + '!'
-                      });
-                  });
+        console.error('user already exists');
+        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register', 'error': 'user already exists'});
       }
-    })(req, rsp, next);
+
+      Users.save(newuser, (err, result) => {
+        if (err) {
+          req.flash('error', 'Something wrong happend');
+          return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
+        }
+
+        // TODO this is still necessary to move back to home keeping the logged session.
+        //req.session.user = {};
+        //req.session.user.name = newuser.username;
+        //req.session.user.id = newuser.id;
+
+        req.login(newuser, function(err) {
+          if (err) { return next(err); }
+          rsp.redirect('/user/polls');
+        });
+      });
+    });
 });
 
-
+//TODO only signed user should be able to see this
 app.get('/polls/new',
         //passport.authenticate('local'),
         function(req, rsp) {
-          rsp.render('new-poll', {'action': '/polls/new'});
+          rsp.render('new-poll', {'action': '/polls/new', 'username': req.user.username});
 });
 
 app.post('/polls/new',
          // TODO get user from session
          //passport.authenticate('local'),
          function(req, rsp) {
-           if (req.session.user_id === null) {
-              return rsp.render('index', {'err_message': 'Something went wrong'});
+           var user = req.user || req.session.user || null;
+
+           if (user == null) {
+              return rsp.render('index', {'error': 'Something went wrong'});
            }
 
            var title = req.body.title;
@@ -201,7 +208,7 @@ app.post('/polls/new',
            }
 
            data = {'title': title,
-                   'owner': req.user._id,
+                   'owner': user.id,
                    'choices': choice_map,
                    'votes': 0};
 
@@ -209,9 +216,9 @@ app.post('/polls/new',
                       function(err, result) {
                         if (err)
                           return rsp.render('index', {'err_message': err});
-                        rsp.redirect('/');
+                        rsp.redirect('/user/polls');
                       });
-         });
+});
 
 // === Run
 port = process.env.PORT || 3001
