@@ -178,7 +178,7 @@ app.post('/polls/new',
          // TODO get user from session
          //passport.authenticate('local'),
          function(req, rsp) {
-           var user = req.user || req.session.user || null;
+           var user = req.user || null;
 
            if (user == null) {
               return rsp.render('index', {'error': 'Something went wrong'});
@@ -208,7 +208,7 @@ app.post('/polls/new',
            }
 
            data = {'title': title,
-                   'owner': user.id,
+                   'owner': user._id,
                    'choices': choice_map,
                    'votes': 0};
 
