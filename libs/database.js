@@ -13,3 +13,5 @@ module.exports.on_connect = function on_connect(action, userdata, cbk) {
             action(db, userdata, cbk);
     });
 };
+
+module.exports.databaseId = mongodb.ObjectID;

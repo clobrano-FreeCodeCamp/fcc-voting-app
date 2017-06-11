@@ -1,3 +1,4 @@
+var assert = require('assert');
 var path = require('path');
 var logger = require("morgan");
 
@@ -14,6 +15,7 @@ var LocalStrategy = require("passport-local").Strategy;
 
 var Users = require('./libs/user');
 var Polls = require('./libs/polls');
+
 
 // === Passport
 passport.use('local', new LocalStrategy (
@@ -266,16 +268,26 @@ app.post('/polls/new',
 app.get('/polls/show/:id', function(req, rsp)
 {
   var id = req.params.id;
+  assert(id != null);
 
-  Polls.get({'_id': req.params.id},
-    function(err, polls)
+  Polls.getById(id,
+    function(err, poll)
       {
         if (err) {
             req.flash('error', 'Could not find poll\'s data');
             return rsp.redirect('/');
         }
 
-        return rsp.render('poll', {'chartData': [0, 10, 5, 2, 20, 30, 45]});
+        var choices = poll[0].choices;
+        var labels = [];
+        var data = [];
+
+        for (var key in choices)
+        {
+            labels.push(key);
+            data.push(choices[key]);
+        }
+        return rsp.render('poll', {'labels': labels, 'data': data});
       });
 });
 
