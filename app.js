@@ -8,6 +8,7 @@ var bodyparser = require("body-parser");
 var cookieparser = require("cookie-parser");
 var flash = require('connect-flash');
 
+var handlebars = require('handlebars');
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
 
@@ -35,6 +36,14 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
   done(null, user);
 });
+
+
+// === handlebars helpers
+handlebars.registerHelper("inc", function(value, options)
+{
+    return parseInt(value) + 1;
+});
+
 
 // === Express
 var app = express();

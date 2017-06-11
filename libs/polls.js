@@ -2,7 +2,7 @@ var on_connect = require('./database').on_connect;
 
 function getPolls(database, filter, callback) {
   var polls = database.collection('polls');
-  polls.find(filter).toArray(function(err, results) {
+  polls.find(filter).sort({'votes': -1}).toArray(function(err, results) {
                              database.close();
                              callback(err, results);
   });

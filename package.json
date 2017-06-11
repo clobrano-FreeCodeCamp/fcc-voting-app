@@ -23,6 +23,8 @@
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.15.3",
+    "handlebars": "^4.0.10",
+    "handlebars-helpers": "^0.8.2",
     "method-override": "^2.3.9",
     "mongodb": "^2.2.28",
     "morgan": "^1.8.2",

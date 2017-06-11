@@ -19,7 +19,7 @@
   <tbody>
     {{#each polls}}
       <tr>
-        <th>{{@index}}</th>
+        <th>{{inc @index}}</th>
         <td>{{this.title}}</td>
         <td>{{this.votes}}</td>
       </tr>
