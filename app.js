@@ -39,9 +39,16 @@ passport.deserializeUser(function(user, done) {
 
 
 // === handlebars helpers
-handlebars.registerHelper("inc", function(value, options)
-{
+handlebars.registerHelper({
+  inc: function(value, options) {
     return parseInt(value) + 1;
+  },
+  eq: function (v1, v2) {
+    return v1 === v2;
+  },
+  neq: function (v1, v2) {
+    return v1 !== v2;
+  },
 });
 
 
@@ -69,21 +76,20 @@ app.set('view engine', 'hbs');
 
 
 // === Routes
-
-// Clear all flash requests
 app.get('/', (req, rsp) => {
   var data = {};
   var filter = {};
 
-  if (req.user && req.user.username)
+  if (req.user && req.user.username) {
     data.username = req.user.username;
+  }
 
   Polls.get({},
-    function(err, user_polls) {
+    function(err, all_polls) {
       if (err) {
         rsp.render('index', {'error': 'Something went wrong'});
       } else {
-        data.polls = user_polls;
+        data.polls = all_polls;
         rsp.render('index', data);
       }
   });
@@ -126,9 +132,10 @@ app.get('/user/polls', function(req, rsp) {
           rsp.render('index', {'err_message': user.username + ', something went wrong'});
         } else {
           data.polls = user_polls;
+          data.userid = user._id;
 
           if (user_polls.length == 0)
-            data.info_message = 'No polls yet';
+            data.info = 'No polls yet';
 
           rsp.render('index', data);
         }

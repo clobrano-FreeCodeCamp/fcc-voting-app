@@ -8,6 +8,7 @@
 </div>
 {{/if}}
 
+<div class="container-fluid">
 <table class="table table-striped table-hover">
   <thead>
     <tr>
@@ -20,8 +21,9 @@
     {{#each polls}}
       <tr>
         <th>{{inc @index}}</th>
-        <td>{{this.title}}</td>
-        <td>{{this.votes}}</td>
+        <td>{{title}}</td>
+        <td>{{votes}}</td>
+        {{#if (eq ../userid owner)}}<td><a href="/polls/edit/{{_id}}"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a></td>{{/if}}
       </tr>
     {{/each}}
   </tbody>
@@ -30,3 +32,4 @@
 {{#if username}}
   <a class="btn btn-md btn-default" role="button" href="/polls/new">+ New Poll</a>
 {{/if}}
+</div>
