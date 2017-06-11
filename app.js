@@ -85,10 +85,25 @@ app.get('/', (req, rsp) => {
   }
 
   Polls.get({},
-    function(err, all_polls) {
-      if (err) {
+    function(err, all_polls)
+    {
+      if (err)
+      {
         rsp.render('index', {'error': 'Something went wrong'});
-      } else {
+      }
+      else
+      {
+        for (i = 0; i < all_polls.length; i++) {
+          var votes = 0;
+          var choices = all_polls[i].choices;
+
+          for (var key in choices) {
+            votes += choices[key];
+          }
+
+          all_polls[i].votes = votes;
+        }
+
         data.polls = all_polls;
         rsp.render('index', data);
       }
@@ -114,6 +129,7 @@ app.get ('/user/logout', function(req, rsp) {
   rsp.redirect('/');
 });
 
+
 app.get('/user/polls', function(req, rsp) {
   var data = {};
   var filter = {};
@@ -131,11 +147,22 @@ app.get('/user/polls', function(req, rsp) {
         if (err) {
           rsp.render('index', {'err_message': user.username + ', something went wrong'});
         } else {
+          for (i = 0; i < user_polls.length; i++) {
+            var votes = 0;
+            var choices = user_polls[i].choices;
+
+            for (var key in choices) {
+              votes += choices[key];
+            }
+
+            user_polls[i].votes = votes;
+          }
+
           data.polls = user_polls;
           data.userid = user._id;
 
           if (user_polls.length == 0)
-            data.info = 'No polls yet';
+            data.info = 'May you want to add some new polls?';
 
           rsp.render('index', data);
         }
@@ -225,8 +252,7 @@ app.post('/polls/new',
 
            data = {'title': title,
                    'owner': user._id,
-                   'choices': choice_map,
-                   'votes': 0};
+                   'choices': choice_map};
 
            Polls.save(data,
                       function(err, result) {
