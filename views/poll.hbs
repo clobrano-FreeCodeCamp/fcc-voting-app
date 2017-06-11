@@ -4,12 +4,12 @@
     <div class="row">
       <div class="col-md-6">
         <div class="choices-box">
-          <form action=#" method="POST">
+          <form action="/polls/vote" method="POST">
             <strong>Here comes the choices!</strong>
 
             {{#each labels}}
               <div class="radio">
-                <input type="radio" name="optRadio">{{escape this}}</input>
+                <input type="radio" name="optRadio" value="{{@index}}">{{escape this}}</input>
               </div>
             {{/each}}
             <input class="btn btn-success" type="submit" value="Vote!"></input>

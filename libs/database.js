@@ -11,6 +11,8 @@ module.exports.on_connect = function on_connect(action, userdata, cbk) {
         assert.equal(null, err);
         if (action)
             action(db, userdata, cbk);
+
+        db.close();
     });
 };
 

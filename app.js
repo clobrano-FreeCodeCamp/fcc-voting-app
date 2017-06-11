@@ -271,8 +271,15 @@ app.post('/polls/new',
 
 app.get('/polls/show/:id', function(req, rsp)
 {
+  var data = {};
+  var user = req.user || null;
   var id = req.params.id;
+
   assert(id != null);
+
+  if (user) {
+    data.username = user.username;
+  }
 
   Polls.getById(id,
     function(err, poll)
@@ -282,12 +289,9 @@ app.get('/polls/show/:id', function(req, rsp)
             return rsp.redirect('/');
         }
 
-        var poll = poll[0];
-        var data = {
-          'title': poll.title,
-          'labels': [],
-          'votes': []
-        };
+        data.title = poll.title;
+        data.labels = [];
+        data.votes = [];
 
         for (var key in poll.choices)
         {
@@ -295,9 +299,38 @@ app.get('/polls/show/:id', function(req, rsp)
             data.votes.push(poll.choices[key]);
         }
 
+        // Sorting labels to have a known order of the elements
+        data.labels.sort();
+
         console.log('Rendering poll with: ' + JSON.stringify(data));
+
+        req.session.poll_id = poll._id;
         return rsp.render('poll', data);
       });
+});
+
+
+app.post('/polls/vote', function(req, rsp)
+{
+  Polls.getById(req.session.poll_id,
+    function(err, poll) {
+
+      var labels = [];
+      var selected = req.body.optRadio;
+
+      for (var key in poll.choices)
+      {
+        labels.push(key);
+      }
+      labels.sort();
+      poll.choices[labels[selected]] += 1;
+
+      Polls.update(poll._id, {'choices': poll.choices}, function(err){
+        if(err) req.flash('error', 'Update error');
+        return rsp.redirect('/polls/show/' + poll._id);
+      });
+
+    });
 });
 
 // === Run
