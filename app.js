@@ -262,6 +262,23 @@ app.post('/polls/new',
                       });
 });
 
+
+app.get('/polls/show/:id', function(req, rsp)
+{
+  var id = req.params.id;
+
+  Polls.get({'_id': req.params.id},
+    function(err, polls)
+      {
+        if (err) {
+            req.flash('error', 'Could not find poll\'s data');
+            return rsp.redirect('/');
+        }
+
+        return rsp.render('poll', {'chartData': [0, 10, 5, 2, 20, 30, 45]});
+      });
+});
+
 // === Run
 port = process.env.PORT || 3001
 app.listen(port);
