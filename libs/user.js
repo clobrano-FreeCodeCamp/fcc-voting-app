@@ -5,7 +5,7 @@ function getUser(database, data, callback) {
   var users = database.collection('users');
 
   // TODO encrypt password
-  console.log('Looking for ' + data.username + ", " + data.password);
+  console.log('Looking for: ' + JSON.stringify(data));
 	users.findOne(
     data,
 		(err, item) => {

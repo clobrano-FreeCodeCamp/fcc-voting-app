@@ -51,6 +51,9 @@ handlebars.registerHelper({
   neq: function (v1, v2) {
     return v1 !== v2;
   },
+  escape: function(value) {
+    return value.replace(/['"]/g, '');
+  }
 });
 
 
@@ -245,7 +248,8 @@ app.post('/polls/new',
                                  'err_message': 'No Choices provided'
                                });
 
-           var choice_list = choices.split("\r\n");
+           // Split list of choices and drop empty elements
+           var choice_list = choices.split("\r\n").filter(function(n) {return n});
            var choice_map = {};
 
            for (i = 0; i < choice_list.length; i++) {
@@ -278,16 +282,21 @@ app.get('/polls/show/:id', function(req, rsp)
             return rsp.redirect('/');
         }
 
-        var choices = poll[0].choices;
-        var labels = [];
-        var data = [];
+        var poll = poll[0];
+        var data = {
+          'title': poll.title,
+          'labels': [],
+          'votes': []
+        };
 
-        for (var key in choices)
+        for (var key in poll.choices)
         {
-            labels.push(key);
-            data.push(choices[key]);
+            data.labels.push('"' + key + '"');
+            data.votes.push(poll.choices[key]);
         }
-        return rsp.render('poll', {'labels': labels, 'data': data});
+
+        console.log('Rendering poll with: ' + JSON.stringify(data));
+        return rsp.render('poll', data);
       });
 });
 
