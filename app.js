@@ -84,7 +84,17 @@ app.set('view engine', 'hbs');
 
 
 // === Routes
-app.get('/', (req, rsp) => {
+app.get('/', function (req, rsp) {
+  var data = {};
+
+  if (req.user && req.user.username) {
+    data.username = req.user.username;
+  }
+
+  rsp.render('home', data);
+});
+
+app.get('/polls', (req, rsp) => {
   var data = {};
   var filter = {};
 
@@ -326,11 +336,10 @@ app.post('/polls/vote', function(req, rsp)
       var labels = [];
       var selected = req.body.optRadio;
 
-      for (var key in poll.choices)
-      {
+      for (var key in poll.choices) {
         labels.push(key);
       }
-      labels.sort();
+
       poll.choices[labels[selected]] += 1;
 
       Polls.update(poll._id, poll, function(err){

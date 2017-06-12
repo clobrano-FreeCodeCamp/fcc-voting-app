@@ -1,20 +1,9 @@
 {{!< layout/main}}
 
-{{#if username }}
-{{else}}
-  <div class="jumbotron text-center">
-    <h1>Top Choices</h1>
-    <a class="btn btn-success btn-lg" role="button" href="/signup">Sign Up</a>
-    <p>and create your own Polls</p>
-    <small>Free Voting APP for the <a href="">FreeCodeCamp</a> Back End Developer Certification</small>
-  </div>
-{{/if}}
-
-
 {{#if (len polls)}}
 <div class="page-header text-center">
 {{#if username}}
-  <h1>{{username}}'s polls</h1>
+  <h1 class="text-capitalize">{{username}}'s polls</h1>
   <h3>You have created {{len polls}} poll(s)</h3>
 {{else}}
   <h1>Community's polls</h1>

@@ -1,0 +1,15 @@
+{{!< layout/main}}
+
+<div class="jumbotron text-center">
+  <h1>Top Choices</h1>
+  <p><a href="/polls">Vote</a> one of the Community's polls</p>
+  {{#if username}}
+    <p>or <a href="/polls/new">create</a> your own</p>
+  {{else}}
+      <p>or <a href="/signin">Sign In</a> and create your own</p>
+  {{/if}}
+  </br>
+  <small>Free Voting APP for the <a href="">FreeCodeCamp</a> Back End Developer Certification</small>
+</div>
+
+
