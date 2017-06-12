@@ -310,6 +310,15 @@ app.get('/polls/show/:id', function(req, rsp)
 });
 
 
+app.get('/polls/remove/:id', function(req, rsp) {
+    var id = req.params.id;
+    Polls.remove(id, function() {
+        req.username = req.user.username;
+        rsp.redirect('/user/polls');
+    });
+});
+
+
 app.post('/polls/vote', function(req, rsp)
 {
   Polls.getById(req.session.poll_id,
@@ -325,7 +334,7 @@ app.post('/polls/vote', function(req, rsp)
       labels.sort();
       poll.choices[labels[selected]] += 1;
 
-      Polls.update(poll._id, {'choices': poll.choices}, function(err){
+      Polls.update(poll._id, poll, function(err){
         if(err) req.flash('error', 'Update error');
         return rsp.redirect('/polls/show/' + poll._id);
       });

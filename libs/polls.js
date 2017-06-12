@@ -42,6 +42,12 @@ function updatePoll(database, data, callback) {
   callback(null);
 }
 
+function removePoll(database, id, callback) {
+  var polls = database.collection('polls');
+  polls.remove({'_id': id}, {justOne: true});
+  callback();
+}
+
 var polls = function() {
   this.update = function(id, data, callback) {
     var objId = new databaseId(id);
@@ -57,6 +63,10 @@ var polls = function() {
   },
   this.save = function(poll, callback) {
     on_connect(savePoll, poll, callback);
+  },
+  this.remove = function(id, callback) {
+    var objId = new databaseId(id);
+    on_connect(removePoll, objId, callback);
   }
 }
 
