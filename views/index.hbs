@@ -2,7 +2,7 @@
 
 {{#if username }}
 {{else}}
-<div class="jumbotron">
+<div class="jumbotron center-block">
   <p>Voting APP for Free Code Camp</p>
   <p><a class="btn btn-primary btn-lg" href="https://www.freecodecamp.com/challenges/build-a-voting-app" role="button">Learn more »</a></p>
 </div>
@@ -14,8 +14,8 @@
     <tr>
       <th>#</th>
       <th>Title</th>
-      <th>#Total votes</th>
-      <th></th>
+      <th>Total votes</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -24,8 +24,16 @@
         <th>{{inc @index}}</th>
         <td>{{title}}</td>
         <td>{{votes}}</td>
-        <td><a href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></a></td>
-        {{#if (eq ../userid owner)}}<td><a href="/polls/remove/{{_id}}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a></td>{{/if}}
+        {{#if (eq ../userid owner)}}
+          <td class="col-md-3">
+            <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
+            <a class="btn btn-danger" role="button" href="/polls/remove/{{_id}}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+          </td>
+        {{else}}
+          <td class="col-md-1">
+            <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
+          </td>
+        {{/if}}
       </tr>
     {{/each}}
   </tbody>

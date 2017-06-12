@@ -53,6 +53,9 @@ handlebars.registerHelper({
   },
   escape: function(value) {
     return value.replace(/['"]/g, '');
+  },
+  len: function(value) {
+    return value.length;
   }
 });
 
