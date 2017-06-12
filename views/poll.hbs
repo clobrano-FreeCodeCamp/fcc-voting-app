@@ -1,23 +1,25 @@
 {{!< layout/main}}
 <div class="container-fluid">
-    <div class="row center-block text-center">
-      <div class="col-md-4 col-md-offset-1">
-        <h1>{{title}}</h1>
-        <div class="choices-box text-capitalize">
-          <form action="/polls/vote" method="POST">
+  <div class="container text-center">
+    <h1>{{title}}</h1>
+  </div>
+  <div class="row center-block text-center">
+    <div class="col-md-4 col-md-offset-1">
+      <div class="choices-box text-capitalize">
+        <form action="/polls/vote" method="POST">
 
-            {{#each labels}}
-              <div class="radio">
-                <input type="radio" name="optRadio" value="{{@index}}">{{escape this}}</input>
-              </div>
-            {{/each}}
+          {{#each labels}}
+            <div class="radio">
+              <input type="radio" name="optRadio" value="{{@index}}">{{escape this}}</input>
+            </div>
+          {{/each}}
 
-            <input class="btn btn-success" type="submit" value="Vote!"></input>
-          </form>
-        </div>
+          <input class="btn btn-success" type="submit" value="Vote!"></input>
+        </form>
+      </div>
     </div>
     <div class="col-md-6">
-
+    </br>
       <canvas id="myChart" width="500" height="400"></canvas>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
         <script>

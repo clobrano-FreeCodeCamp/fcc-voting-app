@@ -2,45 +2,60 @@
 
 {{#if username }}
 {{else}}
-<div class="jumbotron center-block">
-  <p>Voting APP for Free Code Camp</p>
-  <p><a class="btn btn-primary btn-lg" href="https://www.freecodecamp.com/challenges/build-a-voting-app" role="button">Learn more »</a></p>
-</div>
+  <div class="jumbotron text-center">
+    <h1>Top Choices</h1>
+    <a class="btn btn-success btn-lg" role="button" href="/signup">Sign Up</a>
+    <p>and create your own Polls</p>
+    <small>Free Voting APP for the <a href="">FreeCodeCamp</a> Back End Developer Certification</small>
+  </div>
 {{/if}}
 
+
+{{#if (len polls)}}
+<div class="page-header text-center">
+{{#if username}}
+  <h1>{{username}}'s polls</h1>
+  <h3>You have created {{len polls}} poll(s)</h3>
+{{else}}
+  <h1>Community's polls</h1>
+  <h3>Below {{len polls}} poll(s) from <strong>Top Choices</strong> community</h3>
+{{/if}}
+</div>
 <div class="container-fluid container-polls">
-<table class="table table-striped table-hover">
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Title</th>
-      <th>Total votes</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each polls}}
+  <table class="table table-striped table-hover">
+    <thead>
       <tr>
-        <th>{{inc @index}}</th>
-        <td>{{title}}</td>
-        <td>{{votes}}</td>
-        {{#if (eq ../userid owner)}}
-          <td class="col-md-3">
-            <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
-            <a class="btn btn-danger" role="button" href="/polls/remove/{{_id}}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-          </td>
-        {{else}}
-          <td class="col-md-1">
-            <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
-          </td>
-        {{/if}}
+        <th>#</th>
+        <th>Title</th>
+        <th>Total votes</th>
+        <th>Actions</th>
       </tr>
-    {{/each}}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {{#each polls}}
+        <tr>
+          <th>{{inc @index}}</th>
+          <td>{{title}}</td>
+          <td>{{votes}}</td>
+          {{#if (eq ../userid owner)}}
+            <td class="col-md-3">
+              <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
+              <a class="btn btn-danger" role="button" href="/polls/remove/{{_id}}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+            </td>
+          {{else}}
+            <td class="col-md-1">
+              <a class="btn btn-info" role="button" href="/polls/show/{{_id}}"><span class="glyphicon glyphicon-check" aria-hidden="true"></span></a>
+            </td>
+          {{/if}}
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+{{/if}}
 
 
 {{#if username}}
   <a class="btn btn-md btn-default" role="button" href="/polls/new">+ New Poll</a>
 {{/if}}
 </div>
+
