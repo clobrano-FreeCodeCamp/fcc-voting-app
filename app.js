@@ -167,7 +167,7 @@ app.get('/user/polls', function(req, rsp) {
           data.userid = user._id;
 
           if (user_polls.length == 0)
-            data.info = 'May you want to add some new polls?';
+            data.info = 'Would you like to add some new poll?';
 
           rsp.render('index', data);
         }
