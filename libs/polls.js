@@ -6,7 +6,6 @@ function getPoll(database, id, callback) {
   polls.findOne({'_id': id},
     function (err, poll) {
       console.log('Poll by id: ' +  JSON.stringify(poll));
-      console.log(err);
       callback(err, poll);
     });
 }

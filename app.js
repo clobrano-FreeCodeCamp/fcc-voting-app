@@ -296,14 +296,10 @@ app.get('/polls/show/:id', function(req, rsp)
         data.labels = [];
         data.votes = [];
 
-        for (var key in poll.choices)
-        {
+        for (var key in poll.choices){
             data.labels.push('"' + key + '"');
             data.votes.push(poll.choices[key]);
         }
-
-        // Sorting labels to have a known order of the elements
-        data.labels.sort();
 
         console.log('Rendering poll with: ' + JSON.stringify(data));
 
