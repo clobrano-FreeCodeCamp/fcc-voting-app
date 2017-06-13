@@ -5,23 +5,19 @@ function getPoll(database, id, callback) {
   var polls = database.collection('polls');
   polls.findOne({'_id': id},
     function (err, poll) {
-      console.log('Poll by id: ' +  JSON.stringify(poll));
       callback(err, poll);
     });
 }
 
 function getPolls(database, filter, callback) {
   var polls = database.collection('polls');
-  console.log('Polls: get ' + JSON.stringify(filter));
   polls.find(filter).sort({'votes': -1}).toArray(function(err, results) {
-                             console.log(results);
                              callback(err, results);
   });
 }
 
 function savePoll(database, data, callback) {
   var polls = database.collection('polls');
-  console.log('About to save: ' + data.title + ' ' + data.owner);
   if (data.owner)
     polls.insertOne(data,
                     function(err, result) {
@@ -33,7 +29,6 @@ function savePoll(database, data, callback) {
 
 function updatePoll(database, data, callback) {
   var polls = database.collection('polls');
-  console.log('Updating : ' + JSON.stringify(data));
   var id = data.objId;
   delete data.objId;
   polls.update({'_id': id}, data);

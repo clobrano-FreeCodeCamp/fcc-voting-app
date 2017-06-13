@@ -160,7 +160,6 @@ app.get('/user/polls', function(req, rsp) {
 
     Polls.get(filter,
       function(err, user_polls) {
-        console.log(user_polls);
         if (err) {
           rsp.render('index', {'err_message': user.username + ', something went wrong'});
         } else {
@@ -309,8 +308,6 @@ app.get('/polls/show/:id', function(req, rsp)
             data.labels.push('"' + key + '"');
             data.votes.push(poll.choices[key]);
         }
-
-        console.log('Rendering poll with: ' + JSON.stringify(data));
 
         req.session.poll_id = poll._id;
         return rsp.render('poll', data);
