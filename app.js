@@ -341,12 +341,16 @@ app.post('/polls/vote', function(req, rsp)
         labels.push(key);
       }
 
-      poll.choices[labels[selected]] += 1;
+      if (labels.length > selected) {
+        poll.choices[labels[selected]] += 1;
 
-      Polls.update(poll._id, poll, function(err){
-        if(err) req.flash('error', 'Update error');
-        return rsp.redirect('/polls/show/' + poll._id);
-      });
+        Polls.update(poll._id, poll, function(err){
+          if(err) req.flash('error', 'Update error');
+          return rsp.redirect('/polls/show/' + poll._id);
+        });
+      } else {
+          return rsp.redirect('/polls/show/' + poll._id);
+      }
 
     });
 });
