@@ -1,5 +1,6 @@
-var assert = require('assert');
 var on_connect = require('./database').on_connect;
+var databaseId = require('./database').databaseId;
+var assert = require('assert');
 
 function getUser(database, data, callback) {
   var users = database.collection('users');
@@ -34,6 +35,10 @@ var User = function () {
   },
   this.get = function (user, cbk) {
     on_connect(getUser, user, cbk);
+  },
+  this.getById = function (id, cbk) {
+    var objId =  new databaseId(id);
+    on_connect(getUser, objId, cbk);
   }
 };
 

@@ -31,11 +31,14 @@ passport.use('local', new LocalStrategy (
 ));
 
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user._id);
 });
 
-passport.deserializeUser(function(user, done) {
-  done(null, user);
+passport.deserializeUser(function(id, done) {
+  Users.getById(id, function(err, user) {
+    if (err) { return done(err); }
+    done(null, user);
+  });
 });
 
 
@@ -147,43 +150,45 @@ app.get ('/user/logout', function(req, rsp) {
 });
 
 
-app.get('/user/polls', function(req, rsp) {
-  var data = {};
-  var filter = {};
+app.get('/user/polls',
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, rsp) {
+    var data = {};
+    var filter = {};
 
-  if (!req.user) {
-    rsp.redirect('/', {'error': 'Could not find user data'});
-  } else {
-    var user = req.user;
-    data.username = user.username;
-    filter = {'owner': user._id};
+    if (!req.user) {
+      rsp.redirect('/', {'error': 'Could not find user data'});
+    } else {
+      var user = req.user;
+      data.username = user.username;
+      filter = {'owner': user._id.toString()};
 
-    Polls.get(filter,
-      function(err, user_polls) {
-        if (err) {
-          rsp.render('index', {'err_message': user.username + ', something went wrong'});
-        } else {
-          for (i = 0; i < user_polls.length; i++) {
-            var votes = 0;
-            var choices = user_polls[i].choices;
+      Polls.get(filter,
+        function(err, user_polls) {
+          if (err) {
+            rsp.render('index', {'err_message': user.username + ', something went wrong'});
+          } else {
+            for (i = 0; i < user_polls.length; i++) {
+              var votes = 0;
+              var choices = user_polls[i].choices;
 
-            for (var key in choices) {
-              votes += choices[key];
+              for (var key in choices) {
+                votes += choices[key];
+              }
+
+              user_polls[i].votes = votes;
             }
 
-            user_polls[i].votes = votes;
+            data.polls = user_polls;
+            data.userid = user._id.toString();
+
+            if (user_polls.length == 0)
+              data.info = 'Would you like to add some new poll?';
+
+            rsp.render('index', data);
           }
-
-          data.polls = user_polls;
-          data.userid = user._id;
-
-          if (user_polls.length == 0)
-            data.info = 'Would you like to add some new poll?';
-
-          rsp.render('index', data);
-        }
-    });
-  }
+      });
+    }
 });
 
 
@@ -268,7 +273,7 @@ app.post('/polls/new',
            }
 
            data = {'title': title,
-                   'owner': user._id,
+                   'owner': user._id.toString(),
                    'choices': choice_map};
 
            Polls.save(data,
