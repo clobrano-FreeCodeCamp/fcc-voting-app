@@ -218,11 +218,6 @@ app.post('/subscribe', function(req, rsp, next) {
           return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
         }
 
-        // TODO this is still necessary to move back to home keeping the logged session.
-        //req.session.user = {};
-        //req.session.user.name = newuser.username;
-        //req.session.user.id = newuser.id;
-
         req.login(newuser, function(err) {
           if (err) { return next(err); }
           rsp.redirect('/user/polls');
@@ -231,62 +226,59 @@ app.post('/subscribe', function(req, rsp, next) {
     });
 });
 
-//TODO only signed user should be able to see this
 app.get('/polls/new',
-        //passport.authenticate('local'),
-        function(req, rsp) {
-          rsp.render('new-poll', {'action': '/polls/new', 'username': req.user.username});
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, rsp) {
+    rsp.render('new-poll', {'action': '/polls/new', 'username': req.user.username});
 });
 
 app.post('/polls/new',
-         // TODO get user from session
-         //passport.authenticate('local'),
-         function(req, rsp) {
-           var user = req.user || null;
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, rsp) {
+    var user = req.user || null;
 
-           if (user == null) {
-              return rsp.render('index', {'error': 'Something went wrong'});
-           }
+    if (user == null) {
+      return rsp.render('index', {'error': 'Something went wrong'});
+    }
 
-           var title = req.body.title;
-           var choices = req.body.choices;
-           if (!title || title.length == 0)
-             return rsp.render('new-poll',
-                               {
-                                 'action': '/polls/new',
-                                 'err_message': 'Title is missing'
-                               });
+    var title = req.body.title;
+    var choices = req.body.choices;
+    if (!title || title.length == 0)
+     return rsp.render('new-poll',
+                       {
+                         'action': '/polls/new',
+                         'err_message': 'Title is missing'
+                       });
 
-           if (!choices || choices.length == 0)
-             return rsp.render('new-poll',
-                               {
-                                 'action': '/polls/new',
-                                 'err_message': 'No Choices provided'
-                               });
+    if (!choices || choices.length == 0)
+     return rsp.render('new-poll',
+                       {
+                         'action': '/polls/new',
+                         'err_message': 'No Choices provided'
+                       });
 
-           // Split list of choices and drop empty elements
-           var choice_list = choices.split("\r\n").filter(function(n) {return n});
-           var choice_map = {};
+    // Split list of choices and drop empty elements
+    var choice_list = choices.split("\r\n").filter(function(n) {return n});
+    var choice_map = {};
 
-           for (i = 0; i < choice_list.length; i++) {
-              choice_map[choice_list[i]] = 0.0;
-           }
+    for (i = 0; i < choice_list.length; i++) {
+      choice_map[choice_list[i]] = 0.0;
+    }
 
-           data = {'title': title,
-                   'owner': user._id.toString(),
-                   'choices': choice_map};
+    data = {'title': title,
+           'owner': user._id.toString(),
+           'choices': choice_map};
 
-           Polls.save(data,
-                      function(err, result) {
-                        if (err)
-                          return rsp.render('index', {'err_message': err});
-                        rsp.redirect('/user/polls');
-                      });
+    Polls.save(data,
+              function(err, result) {
+                if (err)
+                  return rsp.render('index', {'err_message': err});
+                rsp.redirect('/user/polls');
+              });
 });
 
 
-app.get('/polls/show/:id', function(req, rsp)
-{
+app.get('/polls/show/:id', function(req, rsp) {
   var data = {};
   var user = req.user || null;
   var id = req.params.id;
@@ -320,7 +312,9 @@ app.get('/polls/show/:id', function(req, rsp)
 });
 
 
-app.get('/polls/remove/:id', function(req, rsp) {
+app.get('/polls/remove/:id',
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, rsp) {
     var id = req.params.id;
     Polls.remove(id, function() {
         req.username = req.user.username;
@@ -329,8 +323,7 @@ app.get('/polls/remove/:id', function(req, rsp) {
 });
 
 
-app.post('/polls/vote', function(req, rsp)
-{
+app.post('/polls/vote', function(req, rsp) {
   Polls.getById(req.session.poll_id,
     function(err, poll) {
 
