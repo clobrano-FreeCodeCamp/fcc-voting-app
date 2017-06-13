@@ -348,6 +348,11 @@ app.post('/polls/vote', function(req, rsp) {
     });
 });
 
+
+app.get('/*', function(req, rsp) {
+  rsp.redirect('/');
+});
+
 // === Run
 port = process.env.PORT || 3001
 app.listen(port);
