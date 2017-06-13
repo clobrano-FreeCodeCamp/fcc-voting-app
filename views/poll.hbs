@@ -1,6 +1,6 @@
 {{!< layout/main}}
 <div class="container-fluid">
-  <div class="container text-center">
+  <div class="container">
     <h1>{{title}}</h1>
   </div>
   <div class="row center-block">
@@ -15,6 +15,7 @@
           {{/each}}
 
           <input class="btn btn-success" type="submit" value="Vote!"></input>
+          <input class="btn btn-info" type="submit" value="Share" onclick="copyToShare()"></input>
         </form>
       </div>
     </div>
@@ -67,6 +68,11 @@
         });
         </script>
 
+        <script>
+            function copyToShare() {
+                window.prompt("Copy the link and Share!", window.location.href);
+            }
+        </script>
     </div>
   </div>
 </div>
