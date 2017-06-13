@@ -1,20 +1,19 @@
-var assert = require('assert');
-var path = require('path');
-var logger = require("morgan");
+var express = require("express")
+    , exphbs = require("express-handlebars")
+    , exp_session = require('express-session')
+    , bodyparser = require("body-parser")
+    , cookieparser = require("cookie-parser")
+    , flash = require('connect-flash')
+    , handlebars = require('handlebars');
 
-var express = require("express");
-var exphbs = require("express-handlebars");
-var exp_session = require('express-session');
-var bodyparser = require("body-parser");
-var cookieparser = require("cookie-parser");
-var flash = require('connect-flash');
-
-var handlebars = require('handlebars');
-var passport = require("passport");
-var LocalStrategy = require("passport-local").Strategy;
+var passport = require("passport")
+    , LocalStrategy = require("passport-local").Strategy;
 
 var Users = require('./libs/user');
 var Polls = require('./libs/polls');
+var assert = require('assert');
+var path = require('path');
+var logger = require("morgan");
 
 
 // === Passport
