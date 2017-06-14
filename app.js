@@ -30,6 +30,14 @@ passport.use('local', new LocalStrategy (
   }
 ));
 
+
+passport.use('local', new LocalStrategy ((username, password, done) => {
+    Users.get({'username': username}, (err, user) => {
+        if (err) { return done(err); }
+        
+    });
+}));
+
 passport.serializeUser(function(user, done) {
   done(null, user._id);
 });
