@@ -34,7 +34,10 @@ passport.use('local', new LocalStrategy (
 passport.use('local', new LocalStrategy ((username, password, done) => {
     Users.get({'username': username}, (err, user) => {
         if (err) { return done(err); }
-        
+        Users.isPasswordValid(username, user, (res) => {
+            if (res) { return done(null, item); }
+            return done(null, false, {{ message: "Username and/or password are wrong"});
+        });
     });
 }));
 

@@ -1,6 +1,7 @@
 var on_connect = require('./database').on_connect;
 var databaseId = require('./database').databaseId;
 var assert = require('assert');
+var bcrypt = require('bcrypt');
 
 function getUser(database, data, callback) {
   var users = database.collection('users');
@@ -39,6 +40,9 @@ var User = function () {
   this.getById = function (id, cbk) {
     var objId =  new databaseId(id);
     on_connect(getUser, objId, cbk);
+  },
+  this.isPasswordValid (plain, user) {
+    // TODO
   }
 };
 
