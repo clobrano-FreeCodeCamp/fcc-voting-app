@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/clobrano/fcc-voting-app#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
     "chart.js": "^2.6.0",
     "connect-ensure-login": "^0.1.1",

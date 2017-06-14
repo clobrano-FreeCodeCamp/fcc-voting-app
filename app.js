@@ -17,26 +17,26 @@ var logger = require("morgan");
 
 
 // === Passport
-passport.use('local', new LocalStrategy (
-  function (username, password, done) {
-    var user = {'username': username, 'password': password};
-    Users.get(user,
-      function(err, item) {
-        if (err) { return done(err); }
-        if (!item) { return done(null, false, { message: "Username and/or password are wrong"}); }
-        return done(null, item);
-      }
-    );
-  }
-));
+//passport.use('local', new LocalStrategy (
+//  function (username, password, done) {
+//    var user = {'username': username, 'password': password};
+//    Users.get(user,
+//      function(err, item) {
+//        if (err) { return done(err); }
+//        if (!item) { return done(null, false, { message: "Username and/or password are wrong"}); }
+//        return done(null, item);
+//      }
+//    );
+//  }
+//));
 
 
 passport.use('local', new LocalStrategy ((username, password, done) => {
-    Users.get({'username': username}, (err, user) => {
+    Users.get(username, (err, user) => {
         if (err) { return done(err); }
-        Users.isPasswordValid(username, user, (res) => {
+        Users.isPasswordValid(password, user, (res) => {
             if (res) { return done(null, item); }
-            return done(null, false, {{ message: "Username and/or password are wrong"});
+            return done(null, false, { message: "Username and/or password are wrong"});
         });
     });
 }));
@@ -212,7 +212,7 @@ app.post('/subscribe', function(req, rsp, next) {
     var newuser = {'username': req.body.username,
                    'password': req.body.password};
 
-    Users.get(newuser, (err, user) => {
+    Users.get(newuser.username, (err, user) => {
       if (err) {
         req.flash('error', 'Something wrong happend');
         return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
