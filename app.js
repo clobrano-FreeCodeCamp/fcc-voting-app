@@ -15,30 +15,40 @@ var assert = require('assert');
 var path = require('path');
 var logger = require("morgan");
 
+// === Express
+var app = express();
+app.use(logger('combined'));
+app.use(cookieparser());
+app.use(bodyparser.urlencoded({extended: false}));
+app.use(bodyparser.json());
+app.use(exp_session({
+  secret: 'awsome cat',
+  saveUninitialized: false,
+  resave: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+app.use("/static", express.static(path.join(__dirname, "/static")));
+
+// IMPORTANT: engine NAME and EXTNAME must be the same. Also
+// the other file ext must be the same (i.e. index.hbs)
+app.set('views', path.join(__dirname, 'views/'));
+app.engine('hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
+app.set('view engine', 'hbs');
+
 
 // === Passport
-//passport.use('local', new LocalStrategy (
-//  function (username, password, done) {
-//    var user = {'username': username, 'password': password};
-//    Users.get(user,
-//      function(err, item) {
-//        if (err) { return done(err); }
-//        if (!item) { return done(null, false, { message: "Username and/or password are wrong"}); }
-//        return done(null, item);
-//      }
-//    );
-//  }
-//));
-
-
 passport.use('local', new LocalStrategy ((username, password, done) => {
-    Users.get(username, (err, user) => {
-        if (err) { return done(err); }
-        Users.isPasswordValid(password, user, (res) => {
-            if (res) { return done(null, item); }
-            return done(null, false, { message: "Username and/or password are wrong"});
-        });
+  Users.get(username, (err, user) => {
+    if (err) { return done(err); }
+    Users.isPasswordValid(password, user, (res) => {
+      if (res) {
+        return done(null, user);
+      }
+      return done(null, false, { message: "Username and/or password are wrong"});
     });
+  });
 }));
 
 passport.serializeUser(function(user, done) {
@@ -71,29 +81,6 @@ handlebars.registerHelper({
     return value.length;
   }
 });
-
-
-// === Express
-var app = express();
-app.use(logger('combined'));
-app.use(cookieparser());
-app.use(bodyparser.urlencoded({extended: false}));
-app.use(bodyparser.json());
-app.use(exp_session({
-  secret: 'awsome cat',
-  saveUninitialized: false,
-  resave: false
-}));
-app.use(passport.initialize());
-app.use(flash());
-app.use(passport.session());
-app.use("/static", express.static(path.join(__dirname, "/static")));
-
-// IMPORTANT: engine NAME and EXTNAME must be the same. Also
-// the other file ext must be the same (i.e. index.hbs)
-app.set('views', path.join(__dirname, 'views/'));
-app.engine('hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
-app.set('view engine', 'hbs');
 
 
 // === Routes
@@ -223,13 +210,13 @@ app.post('/subscribe', function(req, rsp, next) {
         return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register', 'error': 'user already exists'});
       }
 
-      Users.save(newuser, (err, result) => {
+      Users.save(newuser, (err, registeredUser) => {
         if (err) {
           req.flash('error', 'Something wrong happend');
           return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
         }
 
-        req.login(newuser, function(err) {
+        req.login(registeredUser, function(err) {
           if (err) { return next(err); }
           rsp.redirect('/user/polls');
         });

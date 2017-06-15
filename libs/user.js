@@ -15,6 +15,19 @@ function getUser(database, username, callback) {
    );
 };
 
+function getUserById(database, id, callback) {
+  var users = database.collection('users');
+  users.findOne({'_id': id}, (err, user) => {
+       if (user) {
+         callback(err, user);
+       } else {
+         callback(null);
+       }
+     }
+   );
+};
+
+
 function saveUser(database, data, callback) {
   const iterations = 10;
   bcrypt.hash(data.password, iterations, (err, hash) => {
@@ -44,7 +57,7 @@ var User = function () {
   },
   this.getById = function (id, cbk) {
     var objId =  new databaseId(id);
-    on_connect(getUser, objId, cbk);
+    on_connect(getUserById, objId, cbk);
   },
   this.isPasswordValid = function (plain, user, callback) {
     bcrypt.compare(plain, user.hash, (err, res) => {
