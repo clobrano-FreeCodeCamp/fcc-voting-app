@@ -27,7 +27,6 @@ function getUserById(database, id, callback) {
    );
 };
 
-
 function saveUser(database, data, callback) {
   const iterations = 10;
   bcrypt.hash(data.password, iterations, (err, hash) => {
@@ -47,7 +46,6 @@ function saveUser(database, data, callback) {
 }
 
 
-
 var User = function () {
   this.save = function(newuser, cbk) {
     on_connect(saveUser, newuser, cbk);
@@ -60,6 +58,7 @@ var User = function () {
     on_connect(getUserById, objId, cbk);
   },
   this.isPasswordValid = function (plain, user, callback) {
+    if (!user) return callback(false);
     bcrypt.compare(plain, user.hash, (err, res) => {
       if (err) return callback(false);
       return callback(res);
