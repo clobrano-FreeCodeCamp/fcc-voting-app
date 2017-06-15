@@ -136,6 +136,7 @@ app.get('/polls', (req, rsp) => {
 app.get('/login', (req, rsp) => {
   rsp.render('user-form', {'action': '/login',
                            'title': 'Please login',
+                           'buttonValue': 'Login',
                            'error': req.flash('error'),
                            'warning': req.flash('warning'),
                            'info': req.flash('info')});
@@ -153,7 +154,9 @@ app.get ('/logout', function(req, rsp) {
 });
 
 app.get('/subscribe', (req, rsp) => {
-  rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
+  rsp.render('user-form', {'action': '/subscribe',
+                           'title': 'Please register',
+                           'buttonValue': 'Register'});
 });
 
 app.post('/subscribe', function(req, rsp, next) {
