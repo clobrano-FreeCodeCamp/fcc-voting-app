@@ -98,6 +98,7 @@ app.get('/polls', (req, rsp) => {
   var data = {};
   var filter = {};
 
+  data.community = true;
   if (req.user && req.user.username) {
     data.username = req.user.username;
   }
