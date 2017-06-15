@@ -37,8 +37,30 @@ app.set('views', path.join(__dirname, 'views/'));
 app.engine('hbs', exphbs({defaultLayout: 'main', extname: '.hbs'}));
 app.set('view engine', 'hbs');
 
+// ==================================================================
+// === handlebars helpers
+// ==================================================================
+handlebars.registerHelper({
+  inc: function(value, options) {
+    return parseInt(value) + 1;
+  },
+  eq: function (v1, v2) {
+    return v1 === v2;
+  },
+  neq: function (v1, v2) {
+    return v1 !== v2;
+  },
+  escape: function(value) {
+    return value.replace(/['"]/g, '');
+  },
+  len: function(value) {
+    return value.length;
+  }
+});
 
+// ==================================================================
 // === Passport
+// ==================================================================
 passport.use('local', new LocalStrategy ((username, password, done) => {
   Users.get(username, (err, user) => {
     if (err) { return done(err); }
@@ -63,27 +85,9 @@ passport.deserializeUser(function(id, done) {
 });
 
 
-// === handlebars helpers
-handlebars.registerHelper({
-  inc: function(value, options) {
-    return parseInt(value) + 1;
-  },
-  eq: function (v1, v2) {
-    return v1 === v2;
-  },
-  neq: function (v1, v2) {
-    return v1 !== v2;
-  },
-  escape: function(value) {
-    return value.replace(/['"]/g, '');
-  },
-  len: function(value) {
-    return value.length;
-  }
-});
-
-
+// ==================================================================
 // === Routes
+// ==================================================================
 app.get('/', function (req, rsp) {
   var data = {};
 
@@ -130,26 +134,58 @@ app.get('/polls', (req, rsp) => {
 });
 
 app.get('/login', (req, rsp) => {
-  rsp.render('user-form', {'action': '/user/login',
+  rsp.render('user-form', {'action': '/login',
                            'title': 'Please login',
                            'error': req.flash('error'),
                            'warning': req.flash('warning'),
                            'info': req.flash('info')});
 });
 
-app.post('/user/login',
-  passport.authenticate('local', { successRedirect: '/user/polls',
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/polls/user',
                                    failureRedirect: '/login',
                                    failureFlash: true}));
 
-app.get ('/user/logout', function(req, rsp) {
+app.get ('/logout', function(req, rsp) {
   req.logout();
   req.session.user = {};
   rsp.redirect('/');
 });
 
+app.get('/subscribe', (req, rsp) => {
+  rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
+});
 
-app.get('/user/polls',
+app.post('/subscribe', function(req, rsp, next) {
+    var newuser = {'username': req.body.username,
+                   'password': req.body.password};
+
+    Users.get(newuser.username, (err, user) => {
+      if (err) {
+        req.flash('error', 'Something wrong happend');
+        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
+      }
+
+      if (user) {
+        console.error('user already exists');
+        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register', 'error': 'user already exists'});
+      }
+
+      Users.save(newuser, (err, registeredUser) => {
+        if (err) {
+          req.flash('error', 'Something wrong happend');
+          return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
+        }
+
+        req.login(registeredUser, function(err) {
+          if (err) { return next(err); }
+          rsp.redirect('/polls/user');
+        });
+      });
+    });
+});
+
+app.get('/polls/user',
   require('connect-ensure-login').ensureLoggedIn(),
   function(req, rsp) {
     var data = {};
@@ -185,41 +221,6 @@ app.get('/user/polls',
           }
       });
     }
-});
-
-
-// --- Subscribe
-app.get('/signup', (req, rsp) => {
-  rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
-});
-
-app.post('/subscribe', function(req, rsp, next) {
-    var newuser = {'username': req.body.username,
-                   'password': req.body.password};
-
-    Users.get(newuser.username, (err, user) => {
-      if (err) {
-        req.flash('error', 'Something wrong happend');
-        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
-      }
-
-      if (user) {
-        console.error('user already exists');
-        return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register', 'error': 'user already exists'});
-      }
-
-      Users.save(newuser, (err, registeredUser) => {
-        if (err) {
-          req.flash('error', 'Something wrong happend');
-          return rsp.render('user-form', {'action': '/subscribe', 'title': 'Please register'});
-        }
-
-        req.login(registeredUser, function(err) {
-          if (err) { return next(err); }
-          rsp.redirect('/user/polls');
-        });
-      });
-    });
 });
 
 app.get('/polls/new',
@@ -269,10 +270,9 @@ app.post('/polls/new',
               function(err, result) {
                 if (err)
                   return rsp.render('index', {'err_message': err});
-                rsp.redirect('/user/polls');
+                rsp.redirect('/polls/user');
               });
 });
-
 
 app.get('/polls/show/:id', function(req, rsp) {
   var data = {};
@@ -307,17 +307,15 @@ app.get('/polls/show/:id', function(req, rsp) {
       });
 });
 
-
 app.get('/polls/remove/:id',
   require('connect-ensure-login').ensureLoggedIn(),
   function(req, rsp) {
     var id = req.params.id;
     Polls.remove(id, function() {
         req.username = req.user.username;
-        rsp.redirect('/user/polls');
+        rsp.redirect('/polls/user');
     });
 });
-
 
 app.post('/polls/vote', function(req, rsp) {
   Polls.getById(req.session.poll_id,
