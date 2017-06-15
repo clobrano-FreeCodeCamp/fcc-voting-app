@@ -180,9 +180,6 @@ app.get('/user/polls',
             data.polls = user_polls;
             data.userid = user._id.toString();
 
-            if (user_polls.length == 0)
-              data.info = 'Would you like to add some new poll?';
-
             rsp.render('index', data);
           }
       });

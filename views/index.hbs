@@ -42,8 +42,12 @@
   </table>
 {{else}}
   <div class="jumbotron text-center">
-    <h2>Oops! There are no polls here!!!</h2>
-    <p><a href="/login">Sign In</a> and create your own</p>
+    <h2>Oops! There are no polls here!</h2>
+    {{#if username }}
+      <p>Add your first poll</p>
+    {{ else }}
+      <p><a href="/login">Sign In</a> and create your own</p>
+    {{/if}}
   </div>
 {{/if}}
 
