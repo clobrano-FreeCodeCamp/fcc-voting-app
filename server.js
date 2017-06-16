@@ -204,7 +204,7 @@ app.get('/polls/user',
       Polls.get(filter,
         function(err, user_polls) {
           if (err) {
-            rsp.render('index', {'err_message': user.username + ', something went wrong'});
+            rsp.render('index', {'error': user.username + ', something went wrong'});
           } else {
             for (i = 0; i < user_polls.length; i++) {
               var votes = 0;
@@ -244,26 +244,41 @@ app.post('/polls/new',
     var title = req.body.title;
     var choices = req.body.choices;
     if (!title || title.length == 0)
-     return rsp.render('new-poll',
+      return rsp.render('new-poll',
                        {
+                         'username': user.username,
                          'action': '/polls/new',
-                         'err_message': 'Title is missing'
+                         'error': 'Title is missing'
                        });
 
     if (!choices || choices.length == 0)
-     return rsp.render('new-poll',
+      return rsp.render('new-poll',
                        {
+                         'username': user.username,
                          'action': '/polls/new',
-                         'err_message': 'No Choices provided'
+                         'error': 'No Choices provided'
                        });
+    console.log("'" + choices + "'");
+    console.log(choices.length);
 
     // Split list of choices and drop empty elements
     var choice_list = choices.split("\r\n").filter(function(n) {return n});
     var choice_map = {};
 
     for (i = 0; i < choice_list.length; i++) {
+      if (choice_list[i] || choice_list[i].length === 0) {
+          continue;
+      }
       choice_map[choice_list[i]] = 0.0;
     }
+
+    if (!choice_map.length)
+      return rsp.render('new-poll',
+                       {
+                         'username': user.username,
+                         'action': '/polls/new',
+                         'error': 'No Choices provided'
+                       });
 
     data = {'title': title,
            'owner': user._id.toString(),
@@ -272,7 +287,8 @@ app.post('/polls/new',
     Polls.save(data,
               function(err, result) {
                 if (err)
-                  return rsp.render('index', {'err_message': err});
+                  return rsp.render('index', {'username': user.username,
+                                              'error': err});
                 rsp.redirect('/polls/user');
               });
 });
